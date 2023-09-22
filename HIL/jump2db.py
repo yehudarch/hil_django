@@ -1,5 +1,5 @@
 import os
-import django
+# import django
 import random
 import string
 import csv
@@ -8,12 +8,15 @@ import datetime
 # import pandas as pd
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "HIL.settings")
+import django
 django.setup()
 
 from hil_app.models import RSSUnsafe, OnlineInterventions, Frame, Clip, Version
 from hil_app.models import RSSUnsafeTemp
 
 CSV_FILE = 'rss_safe_false_control_on_230725-234846_modified.jump'
+USA_COORDINATES_CSV = 'usa_coordinates.csv'
+ISRAEL_COORDINATES_CSV = 'israel_coordinates.csv'
 CAUSE_OPTIONS = ['long_distance_spike', 'late_detection', 'drop_detection']
 TOD_OPTIONS = ['day', 'night']
 ROAD_OPTIONS = ['country', 'urban', 'highway']
@@ -210,11 +213,28 @@ def update_clip():
         clip.save()
 
 
+def update_coordinates():
+    with open(USA_COORDINATES_CSV, 'r') as fh:
+        usa_coordinates = [x for x in csv.DictReader(fh)]
+    with open(ISRAEL_COORDINATES_CSV, 'r') as fh:
+        israel_coordinates = [x for x in csv.DictReader(fh)]
+    rss_instances = RSSUnsafe.objects.all()
+    for rss_instance in rss_instances:
+        if rss_instance.clip.country == 'usa':
+            random_coords = random.choice(usa_coordinates)
+        else:
+            random_coords = random.choice(israel_coordinates)
+        rss_instance.latitude = float(random_coords['latitude'])
+        rss_instance.longitude = float(random_coords['longitude'])
+        rss_instance.save()
+
+
 if __name__ == "__main__":
     # create_db_temp()
     # add_clips()
     # add_frames()
     # add_versions()
-    add_rssunsafe()
+    # add_rssunsafe()
     # update_clip()
+    update_coordinates()
 

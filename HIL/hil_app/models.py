@@ -107,6 +107,8 @@ class RSSUnsafe(models.Model):
     current_rss_lat_diff = models.FloatField()
     lat_brake_rss_lat_diff = models.FloatField()
     control_on = models.FloatField()
+    latitude = models.FloatField(null=True, default=None)
+    longitude = models.FloatField(null=True, default=None)
 
     def __str__(self):
         return f"Clip: {self.clip.clip}, ID: {self.object_id}"
